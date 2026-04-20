@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TripMate — AI Travel Agent</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 40px 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    .card { background: white; border-radius: 16px; padding: 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+    h1 { color: #1a1a2e; font-size: 28px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-bottom: 24px; font-size: 15px; }
+    textarea { width: 100%; padding: 14px; font-size: 15px; border: 2px solid #e0e0e0; border-radius: 10px; resize: vertical; outline: none; transition: border 0.2s; }
+    textarea:focus { border-color: #667eea; }
+    button { margin-top: 12px; padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; width: 100%; font-weight: 600; }
+    button:hover { opacity: 0.9; }
+    #result { margin-top: 24px; padding: 20px; background: #f8f9ff; border-radius: 12px; white-space: pre-wrap; line-height: 1.8; font-size: 15px; min-height: 60px; }
+    .loading { color: #888; font-style: italic; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .suggestion { background: #f0f0ff; color: #667eea; padding: 6px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid #667eea; }
+    .suggestion:hover { background: #667eea; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>✈️ TripMate</h1>
+      <p class="sub">Your AI travel agent — ask me anything about your next trip</p>
+      <div class="suggestions">
+        <span class="suggestion" onclick="setQ('Best restaurants in Tokyo')">🍜 Tokyo restaurants</span>
+        <span class="suggestion" onclick="setQ('Weather in Bali in July')">🌤 Bali weather</span>
+        <span class="suggestion" onclick="setQ('5 day itinerary for Paris')">🗺 Paris itinerary</span>
+        <span class="suggestion" onclick="setQ('What to pack for a trip to Morocco')">🧳 Morocco packing</span>
+      </div>
+      <textarea id="question" rows="3" placeholder="e.g. Plan me a 5 day trip to Japan in April — weather, restaurants and things to do..."></textarea>
+      <button onclick="ask()">Ask TripMate ✈️</button>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    function setQ(text) {
+      document.getElementById("question").value = text;
+    }
+
+    async function ask() {
+      const question = document.getElementById("question").value;
+      if (!question.trim()) return;
+      const result = document.getElementById("result");
+      result.textContent = "TripMate is planning your trip...";
+      result.className = "loading";
+
+      const res = await fetch("/travel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+      });
+
+      const text = await res.text();
+      result.textContent = text;
+      result.className = "";
+    }
+
+    document.getElementById("question").addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); }
+    });
+  </script>
+</body>
+</html>
