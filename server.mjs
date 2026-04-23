@@ -9,40 +9,28 @@ app.post("/travel", async (req, res) => {
   const { question } = req.body;
   res.setHeader("Content-Type", "text/plain");
 
-  const prompt = `You are TripMate, a friendly and knowledgeable AI travel agent. Today is ${new Date().toDateString()}.
+  const prompt = `You are TripMate, a friendly AI travel agent. Today is ${new Date().toDateString()}.
 
 User asks: ${question}
 
-Use WebSearch and WebFetch to find up to date information. Reply in a warm, helpful travel agent tone. Be concise — under 350 words total.
+Reply concisely in under 250 words. Use WebSearch to find current info. Format with relevant sections only:
 
-Format your response using relevant sections from below depending on what was asked:
+🌤 WEATHER - current conditions and forecast
+🗺 ITINERARY - day by day plan
+🍽 RESTAURANTS - 3 local recommendations  
+🧳 PACK - 4 bullet points
+✈️ TIP - one practical tip
 
-🌤 WEATHER
-Current conditions and forecast for the destination.
+Do NOT give visa or booking advice.`;
 
-🗺 ITINERARY
-Day by day plan tailored to the weather and destination. 2-3 activities per day.
-
-🍽 RESTAURANTS & FOOD
-3-4 recommended restaurants or must-try local dishes with a one line description each.
-
-🎯 TOP ACTIVITIES
-3-5 must-do experiences at the destination.
-
-🧳 WHAT TO PACK
-4-5 bullet points based on weather and activities.
-
-✈️ TRAVEL TIP
-One short practical tip.
-
-Only include sections that are relevant to what the user asked. Keep each section brief and actionable.
-
-You do NOT give visa processing advice, exact flight prices, or make bookings. If asked, direct them to a booking site.`;
-
-  for await (const msg of query({ prompt, options: { allowedTools: ["WebFetch", "WebSearch"], permissionMode: "acceptEdits" } })) {
-    if (msg.result) res.write(msg.result);
+  try {
+    for await (const msg of query({ prompt, options: { allowedTools: ["WebSearch"], permissionMode: "acceptEdits", maxTurns: 5 } })) {
+      if (msg.result) res.write(msg.result);
+    }
+  } catch (e) {
+    res.write("Error: " + e.message);
   }
   res.end();
 });
 
-app.listen(3000, () => console.log("TripMate Travel Agent running at http://localhost:3000"));
+app.listen(3000, () => console.log("TripMate running at http://localhost:3000"));
