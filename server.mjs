@@ -32,6 +32,7 @@ app.post("/travel", async (req, res) => {
   res.end();
 });
 
-app.listen(process.env.PORT || 3000, () =>
-  console.log("TripMate running on port " + (process.env.PORT || 3000))
+const PORT = parseInt(process.env.PORT) || 3000;
+app.listen(PORT, "0.0.0.0", () =>
+  console.log("TripMate running on port " + PORT)
 );
